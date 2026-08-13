@@ -1,8 +1,9 @@
 {
   "name": "sha256-manager",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "description": "SHA-256 Manager: LAN discovery, pools and one-click pool switch",
   "author": "juanehgr",
+  "license": "SEE LICENSE IN LICENSE",
   "main": "electron/main.cjs",
   "engines": {
     "node": ">=22"
@@ -14,7 +15,7 @@
     "build": "vite build",
     "dist": "npm run build && electron-builder --win",
     "dist:portable": "npm run build && electron-builder --win portable",
-    "release": "npm run build && electron-builder --win --publish always",
+    "release": "node scripts/release.cjs",
     "android": "npm run build && npx cap sync android",
     "android:apk": "npm run android && node scripts/build-apk.cjs"
   },

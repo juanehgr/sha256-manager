@@ -3,6 +3,7 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const { openDb } = require("./db");
+const backup = require("./backup");
 const { scanNetwork } = require("./discover");
 const { probe, applyPool, restart, identify, normalizeHost } = require("./miners");
 const { detectCoin } = require("./coin");
@@ -458,6 +459,54 @@ function hashToGhs(hash, type) {
 
 app.get("/api/donate", (_req, res) => {
   res.json({ btc: "bc1q9uytz2fa2vpary75ntt3d4vjeag6vcj48zu74w" });
+});
+
+app.get("/api/backup", (_req, res) => {
+  res.json(backup.status(db));
+});
+app.get("/api/backup/export", (_req, res) => {
+  try {
+    res.json(backup.wrap(backup.dump(db)));
+  } catch (e) {
+    res.status(500).json({ error: String(e.message || e) });
+  }
+});
+app.post("/api/backup/import", (req, res) => {
+  try {
+    const mode = String(req.body?.mode || "");
+    if (mode !== "replace" && mode !== "merge") {
+      return res.status(400).json({ error: "Elige reemplazar o combinar" });
+    }
+    const doc = backup.parse(req.body?.raw ?? req.body);
+    const hashOk = !doc.hash || doc.hash === backup.hashOf(doc.data);
+    db.exec("BEGIN");
+    try {
+      if (mode === "replace") backup.applyReplace(db, doc.data);
+      else backup.applyMerge(db, doc.data);
+      db.exec("COMMIT");
+    } catch (e) {
+      db.exec("ROLLBACK");
+      throw e;
+    }
+    res.json({ ok: true, hashOk, created: doc.created });
+  } catch (e) {
+    res.status(400).json({ error: String(e.message || e) });
+  }
+});
+app.post("/api/backup/restore", (_req, res) => {
+  try {
+    db.exec("BEGIN");
+    try {
+      backup.restorePrev(db);
+      db.exec("COMMIT");
+    } catch (e) {
+      db.exec("ROLLBACK");
+      throw e;
+    }
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(400).json({ error: String(e.message || e) });
+  }
 });
 
 app.get("/api/mrr/users", (_req, res) => {

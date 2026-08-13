@@ -67,6 +67,11 @@ const remote = {
   saveUpdateToken: (token: string) =>
     req("/api/update/token", { method: "PUT", body: JSON.stringify({ token }) }),
   applyWebUpdate: () => req("/api/update/web", { method: "POST" }),
+  exportBackup: () => req("/api/backup/export"),
+  importBackup: (raw: string, mode: "replace" | "merge") =>
+    req("/api/backup/import", { method: "POST", body: JSON.stringify({ raw, mode }) }),
+  restoreBackup: () => req("/api/backup/restore", { method: "POST" }),
+  backupStatus: () => req("/api/backup"),
 };
 
 type Api = typeof remote;

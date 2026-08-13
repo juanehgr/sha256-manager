@@ -2,8 +2,9 @@ import { db, nextId, save, type Row } from "./store";
 import { applyPool, normalizeHost, probe, restart } from "./miners";
 import { Lan } from "../native/lan";
 import { algoFromCoin, mrrRequest } from "./mrr";
+import { backupStatus, exportDoc, importMerge, importReplace, restorePrev } from "./backup";
 
-const VERSION = "0.2.0";
+const VERSION = "0.2.2";
 const cache = new Map<string, Record<string, unknown>>();
 
 function detectCoin(address: string) {
@@ -467,4 +468,18 @@ export const localApi = {
   applyWebUpdate: async () => {
     throw new Error("En el móvil instala el APK nuevo");
   },
+  exportBackup: async () => exportDoc(),
+  importBackup: async (raw: string, mode: "replace" | "merge") => {
+    const { parseBackup, sha256Hex, canonicalData } = await import("../backupFormat");
+    const doc = parseBackup(raw);
+    const expect = await sha256Hex(canonicalData(doc.data));
+    if (mode === "replace") importReplace(doc.data);
+    else importMerge(doc.data);
+    return { ok: true, hashOk: !doc.hash || doc.hash === expect, created: doc.created };
+  },
+  restoreBackup: async () => {
+    restorePrev();
+    return { ok: true };
+  },
+  backupStatus: async () => backupStatus(),
 };

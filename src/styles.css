@@ -423,13 +423,14 @@ th, td { text-align: left; padding: 9px 8px; border-bottom: 1px solid var(--bord
 }
 .connect h1 { font-size: 22px; margin: 0 0 8px; }
 .connect .field { display: flex; flex-direction: column; gap: 6px; margin: 16px 0; }
-.connect input {
+.connect input, textarea {
   background: var(--panel2);
   border: 1px solid var(--border);
   color: var(--text);
   border-radius: 10px;
   padding: 12px;
-  font-size: 16px;
+  font-size: 14px;
+  font-family: ui-monospace, Consolas, monospace;
 }
 .connect .err { color: var(--danger); font-size: 13px; }
 @media (max-width: 860px) {

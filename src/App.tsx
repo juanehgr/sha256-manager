@@ -7,13 +7,14 @@ import Pools from "./pages/Pools";
 import Wallets from "./pages/Wallets";
 import Configs from "./pages/Configs";
 import Schedules from "./pages/Schedules";
+import Backup from "./pages/Backup";
 import Donate from "./pages/Donate";
 import Mrr from "./pages/Mrr";
 import ActivityLog from "./ActivityLog";
 import { LogProvider } from "./LogContext";
 import { I18nProvider, useI18n, type I18nKey } from "./i18n";
 
-type Tab = "dashboard" | "pools" | "wallets" | "configs" | "schedules" | "mrr" | "donate";
+type Tab = "dashboard" | "pools" | "wallets" | "configs" | "schedules" | "mrr" | "backup" | "donate";
 
 function Shell() {
   const { t, lang, setLang } = useI18n();
@@ -23,7 +24,7 @@ function Shell() {
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [configs, setConfigs] = useState<Config[]>([]);
   const [msg, setMsg] = useState("");
-  const [version, setVersion] = useState("0.2.0");
+  const [version, setVersion] = useState("0.2.2");
   const [upd, setUpd] = useState<{
     available?: boolean;
     latest?: string;
@@ -53,7 +54,7 @@ function Shell() {
     if (!isNativeApp()) {
       fetch(apiUrl("/api/version"))
         .then((r) => r.json())
-        .then((v) => setVersion(v.version || "0.2.0"))
+        .then((v) => setVersion(v.version || "0.2.2"))
         .catch(() => undefined);
     }
     function pollUpdate() {
@@ -95,6 +96,7 @@ function Shell() {
     ["configs", "configs"],
     ["schedules", "schedules"],
     ["mrr", "mrr"],
+    ["backup", "backup"],
     ["donate", "donate"],
   ];
 
@@ -217,6 +219,7 @@ function Shell() {
           )}
           {tab === "schedules" && <Schedules configs={configs} devices={devices} setMsg={setMsg} />}
           {tab === "mrr" && <Mrr configs={configs} setMsg={setMsg} />}
+          {tab === "backup" && <Backup onChange={reloadLib} setMsg={setMsg} />}
           {tab === "donate" && <Donate />}
         </main>
       </div>

@@ -32,6 +32,8 @@ export default function Donate() {
           </a>
         </div>
       </div>
+      <h2 style={{ marginTop: 28 }}>{t("licenseTitle")}</h2>
+      <p className="lead">{t("licenseBody")}</p>
     </div>
   );
 }
