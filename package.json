@@ -1,6 +1,6 @@
 {
   "name": "sha256-manager",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "SHA-256 Manager: LAN discovery, pools and one-click pool switch",
   "author": "juanehgr",
   "license": "SEE LICENSE IN LICENSE",

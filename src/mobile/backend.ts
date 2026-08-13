@@ -4,7 +4,7 @@ import { Lan } from "../native/lan";
 import { algoFromCoin, mrrRequest } from "./mrr";
 import { backupStatus, exportDoc, importMerge, importReplace, restorePrev } from "./backup";
 
-const VERSION = "0.2.2";
+const VERSION = "0.2.3";
 const GH_REL = "https://api.github.com/repos/juanehgr/sha256-manager/releases/latest";
 
 function cmpVer(a: string, b: string) {

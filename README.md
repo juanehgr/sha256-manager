@@ -2,7 +2,7 @@
 
 **Gestor local de mineros SHA-256.** Descubre ASICs en tu LAN, guarda pools y wallets, y cambia de stratum con un clic. También aplica la misma configuración a alquileres de [Mining Rig Rentals](https://www.miningrigrentals.com/).
 
-Versión **0.2.2** · Electron + web en `http://127.0.0.1:3847` · Datos en SQLite local (no hay nube ni cuentas).
+Versión **0.2.3** · Electron + web en `http://127.0.0.1:3847` · Datos en SQLite local (no hay nube ni cuentas).
 
 ![Panel con mineros y cambio de pool](docs/screenshots/01-dashboard.png)
 
@@ -50,7 +50,7 @@ npm run dist
 
 En `release/` quedan:
 
-- **`SHA-256-Manager-0.2.2-portable.exe`** — no instala nada; doble clic y abre la ventana.
+- **`SHA-256-Manager-0.2.3-portable.exe`** — no instala nada; doble clic y abre la ventana.
 - **Instalador NSIS** — acceso directo en escritorio y menú inicio.
 
 Los datos del `.exe` se guardan en `%APPDATA%\sha256-manager\data\`.
@@ -64,7 +64,7 @@ npm install
 npm run android:apk
 ```
 
-El archivo queda en `release/SHA-256-Manager-0.2.2.apk` (firmado).
+El archivo queda en `release/SHA-256-Manager-0.2.3.apk` (firmado).
 
 Google **no lo va a “confiar”** porque no está en Play Store. En el móvil:
 
@@ -188,6 +188,6 @@ React + Vite (UI) · Express (`server/`) · SQLite (`node:sqlite`) · Electron o
 
 ## Licencia y estado
 
-Proyecto en **v0.2.2**. Ver [LICENSE](LICENSE).
+Proyecto en **v0.2.3**. Ver [LICENSE](LICENSE).
 
 **No es Creative Commons.** CC (incluso BY-NC-ND) permite compartir copias; tú no quieres redistribución ni derivados ni uso comercial. Por eso es **todos los derechos reservados**: se puede descargar y usar en equipos propios; no se puede compartir, modificar ni monetizar sin permiso de **juanehgr**.
