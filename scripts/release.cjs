@@ -25,6 +25,9 @@ if (!token) {
   process.exit(1);
 }
 
+const ver = require("../package.json").version;
+console.log(`Publicando SHA-256 Manager ${ver} en GitHub…`);
+
 const env = { ...process.env, GH_TOKEN: token, GITHUB_TOKEN: token };
 const npm = process.platform === "win32" ? "npm.cmd" : "npm";
 const npx = process.platform === "win32" ? "npx.cmd" : "npx";

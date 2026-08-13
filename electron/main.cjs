@@ -28,16 +28,12 @@ function setupUpdater() {
     updater = autoUpdater;
     autoUpdater.autoDownload = false;
     autoUpdater.autoInstallOnAppQuit = true;
-    const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN || "";
-    if (token) {
-      autoUpdater.setFeedURL({
-        provider: "github",
-        owner: "juanehgr",
-        repo: "sha256-manager",
-        private: true,
-        token,
-      });
-    }
+    autoUpdater.setFeedURL({
+      provider: "github",
+      owner: "juanehgr",
+      repo: "sha256-manager",
+      private: false,
+    });
     autoUpdater.on("update-available", (info) => {
       sendUpdate({ state: "available", version: info.version });
     });

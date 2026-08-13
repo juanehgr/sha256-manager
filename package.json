@@ -58,7 +58,7 @@
       "provider": "github",
       "owner": "juanehgr",
       "repo": "sha256-manager",
-      "private": true,
+      "private": false,
       "releaseType": "release"
     }
   },

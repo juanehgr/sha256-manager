@@ -725,4 +725,8 @@ if (require.main === module) {
   });
 }
 
-module.exports = { start, PORT };
+function githubToken() {
+  return update.resolveToken(getSetting("github_token"));
+}
+
+module.exports = { start, PORT, githubToken };

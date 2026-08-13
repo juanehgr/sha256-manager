@@ -76,7 +76,7 @@ Google **no lo va a “confiar”** porque no está en Play Store. En el móvil:
 
 El dashboard comprueba [GitHub Releases](https://github.com/juanehgr/sha256-manager/releases) al abrir y cada 10 minutos. Si hay una versión más nueva, aparece **Actualizar ahora**. El instalador **NSIS** también puede descargar e instalar; el portable no se auto-reemplaza bien.
 
-En **web** (`npm run server` desde un clon git), el mismo aviso ofrece `git pull` + `npm install` + build y recarga. El repo es privado: guarda un token GitHub con permiso `repo` en la barra (se queda en SQLite local).
+En **web** (`npm run server` desde un clon git), el mismo aviso ofrece `git pull` + `npm install` + build y recarga.
 
 Publicar una versión (sube el número en `package.json` antes):
 
@@ -188,6 +188,6 @@ React + Vite (UI) · Express (`server/`) · SQLite (`node:sqlite`) · Electron o
 
 ## Licencia y estado
 
-Proyecto en **v0.2.2**, repositorio privado. Ver [LICENSE](LICENSE).
+Proyecto en **v0.2.2**. Ver [LICENSE](LICENSE).
 
 **No es Creative Commons.** CC (incluso BY-NC-ND) permite compartir copias; tú no quieres redistribución ni derivados ni uso comercial. Por eso es **todos los derechos reservados**: se puede descargar y usar en equipos propios; no se puede compartir, modificar ni monetizar sin permiso de **juanehgr**.
