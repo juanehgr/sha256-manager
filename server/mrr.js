@@ -17,7 +17,7 @@ async function mrrRequest(key, secret, method, endpoint, params) {
     "x-api-nonce": n,
     "x-api-sign": sign,
     Accept: "application/json",
-    "User-Agent": "SHA256Manager/0.1",
+    "User-Agent": "SHA256Manager/0.2",
   };
   const init = { method, headers };
   if (method === "GET" && params) {

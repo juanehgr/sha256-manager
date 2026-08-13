@@ -10,11 +10,22 @@ const { attachStats } = require("./coinStats");
 const { importFromUrl, siteFromHost } = require("./importPools");
 const { mrrRequest, algoFromCoin } = require("./mrr");
 const { startScheduler } = require("./scheduler");
+const update = require("./update");
 
 const VERSION = require("../package.json").version;
 const PORT = Number(process.env.PORT || 3847);
 const db = openDb();
 const cache = new Map();
+
+function getSetting(k) {
+  const row = db.prepare("SELECT value FROM settings WHERE key=?").get(k);
+  return row?.value;
+}
+function setSetting(k, v) {
+  db.prepare(
+    "INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value"
+  ).run(k, v);
+}
 
 const app = express();
 app.use(cors());
@@ -22,6 +33,54 @@ app.use(express.json());
 
 app.get("/api/health", (_req, res) => res.json({ ok: true, version: VERSION }));
 app.get("/api/version", (_req, res) => res.json({ version: VERSION, name: "SHA-256 Manager" }));
+
+app.get("/api/update", async (_req, res) => {
+  try {
+    const token = update.resolveToken(getSetting("github_token"));
+    const info = await update.check(token);
+    res.json({
+      ...info,
+      tokenConfigured: Boolean(token),
+    });
+  } catch (e) {
+    const token = update.resolveToken(getSetting("github_token"));
+    if (e.status === 404 && token) {
+      return res.json({
+        current: VERSION,
+        available: false,
+        tokenConfigured: true,
+        git: require("fs").existsSync(require("path").join(__dirname, "..", ".git")),
+        desktop: Boolean(process.versions.electron),
+      });
+    }
+    res.json({
+      error: String(e.message || e),
+      current: VERSION,
+      available: false,
+      tokenConfigured: Boolean(token),
+      status: e.status || 0,
+      git: update.canGitPull(),
+      desktop: update.isPackagedElectron(),
+    });
+  }
+});
+app.put("/api/update/token", (req, res) => {
+  const token = String(req.body?.token || "").trim();
+  if (!token) {
+    db.prepare("DELETE FROM settings WHERE key='github_token'").run();
+    return res.json({ ok: true, tokenConfigured: false });
+  }
+  setSetting("github_token", token);
+  res.json({ ok: true, tokenConfigured: true });
+});
+app.post("/api/update/web", async (_req, res) => {
+  try {
+    const r = await update.applyGitUpdate();
+    res.json(r);
+  } catch (e) {
+    res.status(400).json({ error: String(e.message || e) });
+  }
+});
 
 function listWallets() {
   return db.prepare("SELECT * FROM wallets ORDER BY id DESC").all();

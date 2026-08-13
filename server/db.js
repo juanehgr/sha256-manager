@@ -3,14 +3,32 @@ const path = require("path");
 const { DatabaseSync } = require("node:sqlite");
 
 function dataDir() {
-  const dir = path.join(__dirname, "..", "data");
-  fs.mkdirSync(dir, { recursive: true });
-  const dest = path.join(dir, "data.sqlite");
-  const old = path.join(process.env.APPDATA || "", "bitaxe-manager", "data.sqlite");
-  if (!fs.existsSync(dest) && old && fs.existsSync(old)) {
-    fs.copyFileSync(old, dest);
+  let root;
+  if (process.versions.electron) {
+    try {
+      const { app } = require("electron");
+      root = path.join(app.getPath("userData"), "data");
+    } catch {
+      root = null;
+    }
   }
-  return dir;
+  if (!root) root = path.join(__dirname, "..", "data");
+  fs.mkdirSync(root, { recursive: true });
+  const dest = path.join(root, "data.sqlite");
+  const candidates = [
+    path.join(__dirname, "..", "data", "data.sqlite"),
+    path.join(process.env.APPDATA || "", "sha256-manager", "data", "data.sqlite"),
+    path.join(process.env.APPDATA || "", "bitaxe-manager", "data.sqlite"),
+  ];
+  if (!fs.existsSync(dest)) {
+    for (const old of candidates) {
+      if (old && old !== dest && fs.existsSync(old)) {
+        fs.copyFileSync(old, dest);
+        break;
+      }
+    }
+  }
+  return root;
 }
 
 function cols(db, table) {

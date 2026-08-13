@@ -119,7 +119,7 @@ async function fetchText(url, timeoutMs = 12000) {
   try {
     const res = await fetch(url, {
       signal: ctrl.signal,
-      headers: { "User-Agent": "Mozilla/5.0 SHA256Manager/0.1", Accept: "*/*" },
+      headers: { "User-Agent": "Mozilla/5.0 SHA256Manager/0.2", Accept: "*/*" },
       redirect: "follow",
     });
     const ct = res.headers.get("content-type") || "";

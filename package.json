@@ -1,7 +1,8 @@
 {
   "name": "sha256-manager",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "SHA-256 Manager: LAN discovery, pools and one-click pool switch",
+  "author": "juanehgr",
   "main": "electron/main.cjs",
   "engines": {
     "node": ">=22"
@@ -10,11 +11,58 @@
     "start": "npm run build && electron .",
     "dev": "vite",
     "server": "node server/index.js",
-    "build": "vite build"
+    "build": "vite build",
+    "dist": "npm run build && electron-builder --win",
+    "dist:portable": "npm run build && electron-builder --win portable",
+    "release": "npm run build && electron-builder --win --publish always"
+  },
+  "build": {
+    "appId": "com.juanehgr.sha256manager",
+    "productName": "SHA-256 Manager",
+    "copyright": "Copyright © juanehgr",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "electron/**/*",
+      "server/**/*",
+      "dist/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        },
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "SHA-256 Manager"
+    },
+    "portable": {
+      "artifactName": "SHA-256-Manager-${version}-portable.exe"
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "juanehgr",
+      "repo": "sha256-manager",
+      "private": true,
+      "releaseType": "release"
+    }
   },
   "dependencies": {
     "bonjour-service": "^1.3.0",
     "cors": "^2.8.5",
+    "electron-updater": "^6.6.2",
     "express": "^5.1.0"
   },
   "devDependencies": {
@@ -23,6 +71,7 @@
     "@vitejs/plugin-react": "^4.6.0",
     "concurrently": "^9.1.2",
     "electron": "^37.2.0",
+    "electron-builder": "^26.0.12",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "typescript": "^5.8.3",

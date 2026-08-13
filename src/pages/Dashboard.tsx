@@ -5,17 +5,26 @@ import HashrateChart from "../HashrateChart";
 import { formatDiff, formatHashrate, formatUptime } from "../format";
 import { useLog } from "../LogContext";
 import { useI18n } from "../i18n";
+import UpdateCard, { type UpdateInfo } from "../UpdateCard";
 
 export default function Dashboard({
   devices,
   configs,
   setDevices,
   setMsg,
+  upd,
+  elState,
+  elPercent,
+  version,
 }: {
   devices: Device[];
   configs: Config[];
   setDevices: (d: Device[]) => void;
   setMsg: (s: string) => void;
+  upd: UpdateInfo | null;
+  elState: string;
+  elPercent: number;
+  version: string;
 }) {
   const { t } = useI18n();
   const { run } = useLog();
@@ -124,6 +133,7 @@ export default function Dashboard({
 
   return (
     <div>
+      <UpdateCard upd={upd} elState={elState} elPercent={elPercent} version={version} onBusy={setMsg} />
       <div className="row">
         <button className="btn primary" onClick={scan} disabled={scanning}>
           {scanning ? t("scanning") : t("scan")}

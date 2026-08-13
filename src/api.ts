@@ -60,4 +60,8 @@ export const api = {
   mrrRentals: () => req("/api/mrr/rentals"),
   mrrApply: (configId: number, ids: string[]) =>
     req("/api/mrr/apply", { method: "POST", body: JSON.stringify({ configId, ids }) }),
+  updateCheck: () => req("/api/update"),
+  saveUpdateToken: (token: string) =>
+    req("/api/update/token", { method: "PUT", body: JSON.stringify({ token }) }),
+  applyWebUpdate: () => req("/api/update/web", { method: "POST" }),
 };

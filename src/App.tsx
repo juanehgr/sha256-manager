@@ -22,7 +22,21 @@ function Shell() {
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [configs, setConfigs] = useState<Config[]>([]);
   const [msg, setMsg] = useState("");
-  const [version, setVersion] = useState("0.1.0");
+  const [version, setVersion] = useState("0.2.0");
+  const [upd, setUpd] = useState<{
+    available?: boolean;
+    latest?: string;
+    current?: string;
+    url?: string;
+    git?: boolean;
+    desktop?: boolean;
+    tokenConfigured?: boolean;
+    error?: string;
+    status?: number;
+  } | null>(null);
+  const [elState, setElState] = useState("");
+  const [elPercent, setElPercent] = useState(0);
+  const [hideUpd, setHideUpd] = useState(false);
 
   async function reloadLib() {
     const [p, w, c] = await Promise.all([api.pools(), api.wallets(), api.configs()]);
@@ -36,8 +50,25 @@ function Shell() {
     api.devices().then((d) => setDevices(d as Device[])).catch(() => undefined);
     fetch("/api/version")
       .then((r) => r.json())
-      .then((v) => setVersion(v.version || "0.1.0"))
+      .then((v) => setVersion(v.version || "0.2.0"))
       .catch(() => undefined);
+    function pollUpdate() {
+      api
+        .updateCheck()
+        .then((u) => setUpd(u as typeof upd))
+        .catch((e) => setUpd({ error: String(e.message), current: version, status: 404 }));
+    }
+    pollUpdate();
+    const poll = setInterval(pollUpdate, 10 * 60 * 1000);
+    const off = window.sha256Manager?.onUpdate((d) => {
+      setElState(d.state || "");
+      if (d.percent != null) setElPercent(d.percent);
+      if (d.version) setUpd((prev) => ({ ...(prev || {}), latest: d.version, available: d.state === "available" || d.state === "ready" }));
+    });
+    return () => {
+      clearInterval(poll);
+      off?.();
+    };
   }, []);
 
   useEffect(() => {
@@ -78,6 +109,9 @@ function Shell() {
           {tabs.map(([id, key]) => (
             <button key={id} className={tab === id ? "active" : ""} onClick={() => setTab(id)}>
               {t(key)}
+              {id === "dashboard" && (upd?.available || elState === "available" || elState === "ready") ? (
+                <span className="nav-dot" title={t("updateAvailable", { v: upd?.latest || "", c: version })} />
+              ) : null}
             </button>
           ))}
         </nav>
@@ -96,6 +130,50 @@ function Shell() {
             </button>
           </div>
         </div>
+        {tab !== "dashboard" &&
+          !hideUpd &&
+          (upd?.available || elState === "ready" || elState === "downloading") && (
+          <div className="update-bar">
+            <span>
+              {elState === "downloading"
+                ? t("updateDownloading", { p: String(Math.round(elPercent)) })
+                : elState === "ready"
+                  ? t("updateReady", { v: upd?.latest || "" })
+                  : upd?.available
+                    ? t("updateAvailable", { v: upd.latest || "", c: upd.current || version })
+                    : t("updateNeedToken")}
+            </span>
+            <div className="update-actions">
+              <button
+                className="btn primary"
+                type="button"
+                onClick={() => {
+                  if (elState === "ready") {
+                    window.sha256Manager?.installUpdate().catch((e) => setMsg(String(e)));
+                    return;
+                  }
+                  if (window.sha256Manager) {
+                    window.sha256Manager.downloadUpdate().catch((e) => setMsg(String(e)));
+                    return;
+                  }
+                  if (upd?.git) {
+                    api
+                      .applyWebUpdate()
+                      .then(() => location.reload())
+                      .catch((e) => setMsg(String(e.message)));
+                    return;
+                  }
+                  if (upd?.url) window.open(upd.url, "_blank");
+                }}
+              >
+                {elState === "ready" ? t("updateInstall") : t("updateNow")}
+              </button>
+              <button className="btn ghost" type="button" onClick={() => setHideUpd(true)}>
+                {t("updateLater")}
+              </button>
+            </div>
+          </div>
+        )}
         {msg && (
           <div className="toast">
             <span>{msg}</span>
@@ -106,7 +184,16 @@ function Shell() {
         )}
         <main>
           {tab === "dashboard" && (
-            <Dashboard devices={devices} configs={configs} setDevices={setDevices} setMsg={setMsg} />
+            <Dashboard
+              devices={devices}
+              configs={configs}
+              setDevices={setDevices}
+              setMsg={setMsg}
+              upd={upd}
+              elState={elState}
+              elPercent={elPercent}
+              version={version}
+            />
           )}
           {tab === "pools" && <Pools pools={pools} onChange={reloadLib} setMsg={setMsg} />}
           {tab === "wallets" && <Wallets wallets={wallets} onChange={reloadLib} setMsg={setMsg} />}

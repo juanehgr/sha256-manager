@@ -2,7 +2,7 @@
 
 **Gestor local de mineros SHA-256.** Descubre ASICs en tu LAN, guarda pools y wallets, y cambia de stratum con un clic. También aplica la misma configuración a alquileres de [Mining Rig Rentals](https://www.miningrigrentals.com/).
 
-Versión **0.1.0** · Electron + web en `http://127.0.0.1:3847` · Datos en SQLite local (no hay nube ni cuentas).
+Versión **0.2.0** · Electron + web en `http://127.0.0.1:3847` · Datos en SQLite local (no hay nube ni cuentas).
 
 ![Panel con mineros y cambio de pool](docs/screenshots/01-dashboard.png)
 
@@ -35,13 +35,41 @@ npm run build
 npm run server
 ```
 
-Abre **http://127.0.0.1:3847**. Escritorio:
+Abre **http://127.0.0.1:3847**. Escritorio (desarrollo):
 
 ```bash
 npm start
 ```
 
-Los datos viven en `data/data.sqlite` (junto al proyecto). No se suben al repositorio.
+### Ejecutable de Windows
+
+```bash
+npm install
+npm run dist
+```
+
+En `release/` quedan:
+
+- **`SHA-256-Manager-0.2.0-portable.exe`** — no instala nada; doble clic y abre la ventana.
+- **Instalador NSIS** — acceso directo en escritorio y menú inicio.
+
+Los datos del `.exe` se guardan en `%APPDATA%\sha256-manager\data\`.
+
+### Actualizaciones
+
+El dashboard comprueba [GitHub Releases](https://github.com/juanehgr/sha256-manager/releases) al abrir y cada 10 minutos. Si hay una versión más nueva, aparece **Actualizar ahora**. El instalador **NSIS** también puede descargar e instalar; el portable no se auto-reemplaza bien.
+
+En **web** (`npm run server` desde un clon git), el mismo aviso ofrece `git pull` + `npm install` + build y recarga. El repo es privado: guarda un token GitHub con permiso `repo` en la barra (se queda en SQLite local).
+
+Publicar una versión (sube el número en `package.json` antes):
+
+```bash
+npm run release
+```
+
+Usa `gh` / `GH_TOKEN` con permiso `repo`. Crea el release con el `.exe` y `latest.yml` para electron-updater.
+
+Los datos viven en `data/data.sqlite` si arrancas con `npm run server` (junto al proyecto). No se suben al repositorio.
 
 ---
 
@@ -143,4 +171,4 @@ React + Vite (UI) · Express (`server/`) · SQLite (`node:sqlite`) · Electron o
 
 ## Licencia y estado
 
-Proyecto en **v0.1**, repositorio privado. Uso en tu propia red y hardware.
+Proyecto en **v0.2.0**, repositorio privado. Uso en tu propia red y hardware.

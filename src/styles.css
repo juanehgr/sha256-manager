@@ -97,6 +97,46 @@ aside nav button.active {
   font-size: 12px;
 }
 .lang button.active { color: var(--text); border-color: var(--accent); }
+.update-bar {
+  margin: 12px 24px 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(62, 224, 160, 0.1);
+  border: 1px solid rgba(62, 224, 160, 0.35);
+  color: var(--text);
+  font-size: 13px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.update-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.update-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--panel2);
+}
+.update-card.hot {
+  border-color: rgba(62, 224, 160, 0.45);
+  background: rgba(62, 224, 160, 0.08);
+}
+.nav-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-left: 8px;
+  border-radius: 50%;
+  background: #46d59a;
+  box-shadow: 0 0 0 3px rgba(70, 213, 154, 0.25);
+  vertical-align: middle;
+}
 main { padding: 18px 24px 32px; flex: 1; }
 h2 { font-size: 18px; font-weight: 650; margin: 0 0 8px; }
 .lead { color: var(--muted); margin: 0 0 16px; font-size: 13px; }
