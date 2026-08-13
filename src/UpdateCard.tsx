@@ -1,5 +1,5 @@
-import { api } from "../api";
-import { useI18n } from "../i18n";
+import { api } from "./api";
+import { useI18n } from "./i18n";
 
 export type UpdateInfo = {
   available?: boolean;
@@ -36,14 +36,14 @@ export default function UpdateCard({
         await window.sha256Manager?.installUpdate();
         return;
       }
-      if (window.sha256Manager) {
-        await window.sha256Manager.downloadUpdate();
-        return;
-      }
       if (upd?.git) {
         onBusy(t("updateChecking"));
         await api.applyWebUpdate();
         location.reload();
+        return;
+      }
+      if (window.sha256Manager) {
+        await window.sha256Manager.downloadUpdate();
         return;
       }
       if (upd?.url) window.open(upd.url, "_blank");

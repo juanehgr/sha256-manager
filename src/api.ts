@@ -1,5 +1,8 @@
+import { apiUrl, isNativeApp } from "./apiBase";
+import { localApi } from "./mobile/backend";
+
 async function req<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(path, {
+  const res = await fetch(apiUrl(path), {
     ...init,
     headers: { "Content-Type": "application/json", ...(init?.headers || {}) },
   });
@@ -8,7 +11,7 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
   return data as T;
 }
 
-export const api = {
+const remote = {
   wallets: () => req("/api/wallets"),
   saveWallet: (body: unknown, id?: number) =>
     req(id ? `/api/wallets/${id}` : "/api/wallets", {
@@ -65,3 +68,14 @@ export const api = {
     req("/api/update/token", { method: "PUT", body: JSON.stringify({ token }) }),
   applyWebUpdate: () => req("/api/update/web", { method: "POST" }),
 };
+
+type Api = typeof remote;
+
+export const api: Api = new Proxy(remote, {
+  get(target, prop, recv) {
+    if (isNativeApp() && prop in localApi) {
+      return (localApi as Record<string | symbol, unknown>)[prop];
+    }
+    return Reflect.get(target, prop, recv);
+  },
+}) as Api;

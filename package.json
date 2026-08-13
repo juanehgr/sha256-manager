@@ -14,7 +14,9 @@
     "build": "vite build",
     "dist": "npm run build && electron-builder --win",
     "dist:portable": "npm run build && electron-builder --win portable",
-    "release": "npm run build && electron-builder --win --publish always"
+    "release": "npm run build && electron-builder --win --publish always",
+    "android": "npm run build && npx cap sync android",
+    "android:apk": "npm run android && node scripts/build-apk.cjs"
   },
   "build": {
     "appId": "com.juanehgr.sha256manager",
@@ -63,9 +65,12 @@
     "bonjour-service": "^1.3.0",
     "cors": "^2.8.5",
     "electron-updater": "^6.6.2",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "@capacitor/core": "^6.2.1"
   },
   "devDependencies": {
+    "@capacitor/android": "^6.2.1",
+    "@capacitor/cli": "^6.2.1",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",

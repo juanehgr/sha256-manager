@@ -150,6 +150,13 @@ const dict = {
     updateNeedToken: "El repo es privado: pega un token con permiso repo para buscar releases.",
     updateDownloading: "Descargando {p}%",
     updateReady: "Listo. Reinicia para instalar {v}.",
+    mobileConnect: "Conectar",
+    mobileConnectLead: "En el PC deja SHA-256 Manager abierto en la misma Wi‑Fi. Pon la IP de ese ordenador (puerto 3847).",
+    mobileHost: "IP del PC",
+    mobileConnectBtn: "Conectar",
+    mobileConnectFail: "No hay conexión. Revisa que el PC esté en la misma red y la app abierta.",
+    mobileChangePc: "Cambiar PC",
+    menu: "Menú",
   },
   en: {
     appName: "SHA-256 Manager",
@@ -300,6 +307,13 @@ const dict = {
     updateNeedToken: "Private repo: paste a token with repo scope to check releases.",
     updateDownloading: "Downloading {p}%",
     updateReady: "Ready. Restart to install {v}.",
+    mobileConnect: "Connect",
+    mobileConnectLead: "Keep SHA-256 Manager open on the PC on the same Wi‑Fi. Enter that computer’s IP (port 3847).",
+    mobileHost: "PC IP",
+    mobileConnectBtn: "Connect",
+    mobileConnectFail: "Cannot reach the PC. Same Wi‑Fi, and the app must be running.",
+    mobileChangePc: "Change PC",
+    menu: "Menu",
   },
 } as const;
 

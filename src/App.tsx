@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "./api";
+import { apiUrl, isNativeApp } from "./apiBase";
 import type { Config, Device, Pool, Wallet } from "./types";
 import Dashboard from "./pages/Dashboard";
 import Pools from "./pages/Pools";
@@ -37,6 +38,7 @@ function Shell() {
   const [elState, setElState] = useState("");
   const [elPercent, setElPercent] = useState(0);
   const [hideUpd, setHideUpd] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   async function reloadLib() {
     const [p, w, c] = await Promise.all([api.pools(), api.wallets(), api.configs()]);
@@ -48,10 +50,12 @@ function Shell() {
   useEffect(() => {
     reloadLib().catch((e) => setMsg(String(e.message)));
     api.devices().then((d) => setDevices(d as Device[])).catch(() => undefined);
-    fetch("/api/version")
-      .then((r) => r.json())
-      .then((v) => setVersion(v.version || "0.2.0"))
-      .catch(() => undefined);
+    if (!isNativeApp()) {
+      fetch(apiUrl("/api/version"))
+        .then((r) => r.json())
+        .then((v) => setVersion(v.version || "0.2.0"))
+        .catch(() => undefined);
+    }
     function pollUpdate() {
       api
         .updateCheck()
@@ -95,7 +99,11 @@ function Shell() {
   ];
 
   return (
-    <div className="app">
+    <div className={`app ${menuOpen ? "menu-open" : ""}`}>
+      <button className="menu-btn" type="button" onClick={() => setMenuOpen((v) => !v)}>
+        {t("menu")}
+      </button>
+      {menuOpen && <div className="menu-backdrop" onClick={() => setMenuOpen(false)} />}
       <aside>
         <div className="brand">
           {t("appName")}
@@ -107,7 +115,14 @@ function Shell() {
         </div>
         <nav>
           {tabs.map(([id, key]) => (
-            <button key={id} className={tab === id ? "active" : ""} onClick={() => setTab(id)}>
+            <button
+              key={id}
+              className={tab === id ? "active" : ""}
+              onClick={() => {
+                setTab(id);
+                setMenuOpen(false);
+              }}
+            >
               {t(key)}
               {id === "dashboard" && (upd?.available || elState === "available" || elState === "ready") ? (
                 <span className="nav-dot" title={t("updateAvailable", { v: upd?.latest || "", c: version })} />
@@ -152,15 +167,15 @@ function Shell() {
                     window.sha256Manager?.installUpdate().catch((e) => setMsg(String(e)));
                     return;
                   }
-                  if (window.sha256Manager) {
-                    window.sha256Manager.downloadUpdate().catch((e) => setMsg(String(e)));
-                    return;
-                  }
                   if (upd?.git) {
                     api
                       .applyWebUpdate()
                       .then(() => location.reload())
                       .catch((e) => setMsg(String(e.message)));
+                    return;
+                  }
+                  if (window.sha256Manager) {
+                    window.sha256Manager.downloadUpdate().catch((e) => setMsg(String(e)));
                     return;
                   }
                   if (upd?.url) window.open(upd.url, "_blank");
@@ -210,12 +225,18 @@ function Shell() {
   );
 }
 
+function Gate() {
+  return (
+    <LogProvider>
+      <Shell />
+    </LogProvider>
+  );
+}
+
 export default function App() {
   return (
     <I18nProvider>
-      <LogProvider>
-        <Shell />
-      </LogProvider>
+      <Gate />
     </I18nProvider>
   );
 }

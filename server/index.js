@@ -14,6 +14,7 @@ const update = require("./update");
 
 const VERSION = require("../package.json").version;
 const PORT = Number(process.env.PORT || 3847);
+const BIND = process.env.BIND_HOST || "0.0.0.0";
 const db = openDb();
 const cache = new Map();
 
@@ -642,12 +643,12 @@ function start() {
     };
     const onListen = () => {
       server.off("error", onError);
-      console.log(`SHA-256 Manager v${VERSION} en http://127.0.0.1:${PORT}`);
+      console.log(`SHA-256 Manager v${VERSION} en http://127.0.0.1:${PORT} (bind ${BIND})`);
       resolve(server);
     };
     server.once("error", onError);
     server.once("listening", onListen);
-    server.listen(PORT, "127.0.0.1");
+    server.listen(PORT, BIND);
   });
 }
 

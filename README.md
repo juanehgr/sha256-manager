@@ -55,6 +55,23 @@ En `release/` quedan:
 
 Los datos del `.exe` se guardan en `%APPDATA%\sha256-manager\data\`.
 
+### Android (APK)
+
+El APK es **standalone**: escanea la Wi‑Fi del móvil, guarda pools/wallets en el teléfono y aplica stratum directo a los mineros. No hace falta el PC.
+
+```bash
+npm install
+npm run android:apk
+```
+
+El archivo queda en `release/SHA-256-Manager-0.2.0.apk` (firmado).
+
+Google **no lo va a “confiar”** porque no está en Play Store. En el móvil:
+
+1. Desinstala cualquier SHA-256 Manager anterior.
+2. Ajustes → Aplicaciones → Acceso especial → **Instalar apps desconocidas** → Files / Chrome / Drive → permitir.
+3. Abre el APK. Si sale **Play Protect**: Más detalles → **Instalar de todos modos**.
+
 ### Actualizaciones
 
 El dashboard comprueba [GitHub Releases](https://github.com/juanehgr/sha256-manager/releases) al abrir y cada 10 minutos. Si hay una versión más nueva, aparece **Actualizar ahora**. El instalador **NSIS** también puede descargar e instalar; el portable no se auto-reemplaza bien.
@@ -156,7 +173,7 @@ Identidad por MAC cuando el equipo la expone; si no, un identificador derivado d
 
 ## Privacidad y seguridad
 
-- Solo escucha en **127.0.0.1:3847**.
+- Escucha en **0.0.0.0:3847** para que el móvil en la misma Wi‑Fi pueda conectar. El escritorio sigue abriendo `http://127.0.0.1:3847`.
 - No hay cuentas remotas ni telemetría de esta app.
 - Keys MRR: tabla `mrr_users` en SQLite. No las subas a git (`data/` está en `.gitignore`).
 - Aplicar pool **escribe en el minero**. Revisa la config antes de pulsar.

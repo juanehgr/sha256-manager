@@ -147,10 +147,19 @@ async function check(token) {
 
 function run(cmd, args) {
   return new Promise((resolve, reject) => {
-    execFile(cmd, args, { cwd: projectRoot(), windowsHide: true, timeout: 120000 }, (err, stdout, stderr) => {
+    const opts = {
+      cwd: projectRoot(),
+      windowsHide: true,
+      timeout: 300000,
+      env: process.env,
+      shell: process.platform === "win32",
+    };
+    execFile(cmd, args, opts, (err, stdout, stderr) => {
       if (err) {
-        err.stderr = stderr;
-        reject(err);
+        const extra = String(stderr || err.message || "");
+        const wrapped = new Error(extra.includes("EINVAL") ? `${cmd} ${args.join(" ")}: ${extra}` : extra || String(err));
+        wrapped.stderr = stderr;
+        reject(wrapped);
         return;
       }
       resolve(String(stdout || ""));
@@ -160,8 +169,8 @@ function run(cmd, args) {
 
 async function applyGitUpdate() {
   if (!canGitPull()) throw new Error("Esta instalación no es un clon git");
-  const git = process.platform === "win32" ? "git.exe" : "git";
-  const npm = process.platform === "win32" ? "npm.cmd" : "npm";
+  const git = "git";
+  const npm = "npm";
   const pull = await run(git, ["pull", "--ff-only"]);
   await run(npm, ["install"]);
   await run(npm, ["run", "build"]);
