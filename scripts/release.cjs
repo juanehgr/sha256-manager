@@ -1,4 +1,5 @@
 const { execFileSync, spawnSync } = require("child_process");
+const fs = require("fs");
 const path = require("path");
 
 const root = path.join(__dirname, "..");
@@ -39,3 +40,13 @@ function run(cmd, args) {
 
 run(npm, ["run", "build"]);
 run(npx, ["electron-builder", "--win", "--publish", "always"]);
+console.log("Generando APK…");
+run(npm, ["run", "android:apk"]);
+const apk = path.join(root, "release", `SHA-256-Manager-${ver}.apk`);
+if (fs.existsSync(apk)) {
+  const gh = process.platform === "win32" ? "gh.exe" : "gh";
+  run(gh, ["release", "upload", `v${ver}`, apk, "--clobber"]);
+  console.log(`APK subido a v${ver}`);
+} else {
+  console.warn("No se encontró el APK; el release de escritorio ya está publicado.");
+}

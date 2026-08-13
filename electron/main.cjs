@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
 const { start, PORT } = require("../server/index.js");
 
@@ -71,7 +71,16 @@ async function createWindow() {
   try {
     await start();
   } catch (err) {
-    if (err.code !== "EADDRINUSE") {
+    if (err.code === "EADDRINUSE") {
+      if (app.isPackaged) {
+        dialog.showErrorBox(
+          "SHA-256 Manager",
+          `El puerto ${PORT} está ocupado por otra copia (por ejemplo npm run server o un .exe viejo).\n\nCiérrala en el Administrador de tareas y vuelve a abrir esta app.\nSi no, seguirás viendo la versión antigua.`
+        );
+        app.quit();
+        return;
+      }
+    } else {
       console.error(err);
       app.quit();
       return;

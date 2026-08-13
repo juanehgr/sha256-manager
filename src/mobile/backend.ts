@@ -5,6 +5,24 @@ import { algoFromCoin, mrrRequest } from "./mrr";
 import { backupStatus, exportDoc, importMerge, importReplace, restorePrev } from "./backup";
 
 const VERSION = "0.2.2";
+const GH_REL = "https://api.github.com/repos/juanehgr/sha256-manager/releases/latest";
+
+function cmpVer(a: string, b: string) {
+  const pa = String(a || "")
+    .replace(/^v/i, "")
+    .split(".")
+    .map((n) => Number(n) || 0);
+  const pb = String(b || "")
+    .replace(/^v/i, "")
+    .split(".")
+    .map((n) => Number(n) || 0);
+  const len = Math.max(pa.length, pb.length);
+  for (let i = 0; i < len; i++) {
+    if ((pa[i] || 0) > (pb[i] || 0)) return 1;
+    if ((pa[i] || 0) < (pb[i] || 0)) return -1;
+  }
+  return 0;
+}
 const cache = new Map<string, Record<string, unknown>>();
 
 function detectCoin(address: string) {
@@ -458,12 +476,27 @@ export const localApi = {
     }
     return { config: cfg.name, algo: algoFromCoin(String(cfg.pool_coin || "")), results };
   },
-  updateCheck: async () => ({
-    current: VERSION,
-    available: false,
-    desktop: false,
-    git: false,
-  }),
+  updateCheck: async () => {
+    try {
+      const res = await fetch(GH_REL, { headers: { Accept: "application/vnd.github+json", "User-Agent": "SHA256Manager" } });
+      if (!res.ok) throw new Error(`GitHub ${res.status}`);
+      const rel = await res.json();
+      const latest = String(rel.tag_name || rel.name || "").replace(/^v/i, "");
+      const assets = Array.isArray(rel.assets) ? rel.assets : [];
+      const apk = assets.find((a: { name?: string }) => /\.apk$/i.test(String(a.name || "")));
+      return {
+        current: VERSION,
+        latest,
+        name: rel.name || latest,
+        url: apk?.browser_download_url || rel.html_url || "",
+        available: Boolean(latest) && cmpVer(latest, VERSION) > 0,
+        desktop: false,
+        git: false,
+      };
+    } catch {
+      return { current: VERSION, available: false, desktop: false, git: false };
+    }
+  },
   saveUpdateToken: async () => ({ ok: true, tokenConfigured: false }),
   applyWebUpdate: async () => {
     throw new Error("En el móvil instala el APK nuevo");

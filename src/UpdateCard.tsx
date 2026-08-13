@@ -1,4 +1,5 @@
 import { api } from "./api";
+import { isNativeApp } from "./apiBase";
 import { useI18n } from "./i18n";
 
 export type UpdateInfo = {
@@ -34,6 +35,10 @@ export default function UpdateCard({
     try {
       if (elState === "ready") {
         await window.sha256Manager?.installUpdate();
+        return;
+      }
+      if (isNativeApp()) {
+        if (upd?.url) window.open(upd.url, "_blank");
         return;
       }
       if (upd?.git) {

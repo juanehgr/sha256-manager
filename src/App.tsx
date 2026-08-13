@@ -169,6 +169,10 @@ function Shell() {
                     window.sha256Manager?.installUpdate().catch((e) => setMsg(String(e)));
                     return;
                   }
+                  if (isNativeApp()) {
+                    if (upd?.url) window.open(upd.url, "_blank");
+                    return;
+                  }
                   if (upd?.git) {
                     api
                       .applyWebUpdate()
