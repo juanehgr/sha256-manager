@@ -102,8 +102,8 @@ export default function Pools({
       <h2>{t("pools")}</h2>
       <div className="import-box">
         <p className="lead">{t("importLead")}</p>
-        <div className="row" style={{ marginBottom: 0 }}>
-          <label style={{ flex: 1, minWidth: 280 }}>
+        <div className="form-inline">
+          <label>
             {t("url")}
             <input
               placeholder="https://molepool.com"
@@ -116,7 +116,7 @@ export default function Pools({
           </button>
         </div>
       </div>
-      <form className="row" onSubmit={onSubmit}>
+      <form className="form-grid" onSubmit={onSubmit}>
         <label>
           {t("name")}
           <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
@@ -141,8 +141,8 @@ export default function Pools({
           {editId ? t("update") : t("addPool")}
         </button>
       </form>
-      <div className="row">
-        <label style={{ flex: 1, minWidth: 240 }}>
+      <div className="toolbar">
+        <label>
           {t("search")}
           <input placeholder="nombre, host, moneda, sitio…" value={q} onChange={(e) => setQ(e.target.value)} />
         </label>
@@ -161,6 +161,7 @@ export default function Pools({
           {t("expandAll")}
         </button>
       </div>
+      <div className="table-wrap">
       <table>
         <thead>
           <tr>
@@ -188,6 +189,7 @@ export default function Pools({
                     <td>{p.host}</td>
                     <td>{p.port}</td>
                     <td>
+                      <div className="row-actions">
                       <button
                         className="btn"
                         onClick={() => {
@@ -203,13 +205,14 @@ export default function Pools({
                         }}
                       >
                         {t("edit")}
-                      </button>{" "}
+                      </button>
                       <button
                         className="btn danger"
                         onClick={() => api.deletePool(p.id).then(onChange).catch((e) => setMsg(e.message))}
                       >
                         {t("del")}
                       </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -217,6 +220,7 @@ export default function Pools({
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

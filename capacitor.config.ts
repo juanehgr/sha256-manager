@@ -2,7 +2,7 @@ import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
   appId: "com.juanehgr.sha256manager",
-  appName: "SHA-256 Manager",
+  appName: "Miner Connection Manager",
   webDir: "dist",
   android: {
     allowMixedContent: true,

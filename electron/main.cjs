@@ -74,7 +74,7 @@ async function createWindow() {
     if (err.code === "EADDRINUSE") {
       if (app.isPackaged) {
         dialog.showErrorBox(
-          "SHA-256 Manager",
+          "Miner Connection Manager",
           `El puerto ${PORT} está ocupado por otra copia (por ejemplo npm run server o un .exe viejo).\n\nCiérrala en el Administrador de tareas y vuelve a abrir esta app.\nSi no, seguirás viendo la versión antigua.`
         );
         app.quit();
@@ -93,7 +93,7 @@ async function createWindow() {
     minWidth: 960,
     minHeight: 640,
     backgroundColor: "#0a0d12",
-    title: "SHA-256 Manager",
+    title: "Miner Connection Manager",
     autoHideMenuBar: true,
     show: false,
     webPreferences: {

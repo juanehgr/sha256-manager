@@ -133,6 +133,9 @@ function baseDevice(ip, extra) {
     isUsingFallbackStratum: extra.isUsingFallbackStratum,
     sharesAccepted: extra.sharesAccepted ?? 0,
     sharesRejected: extra.sharesRejected ?? 0,
+    sharesSent:
+      extra.sharesSent ??
+      Number(extra.sharesAccepted || 0) + Number(extra.sharesRejected || 0),
     bestDiff: extra.bestDiff ?? null,
     bestSessionDiff: extra.bestSessionDiff ?? null,
     uptimeSeconds: extra.uptimeSeconds ?? 0,
@@ -182,6 +185,7 @@ async function probeAxeos(ip) {
     isUsingFallbackStratum: info.isUsingFallbackStratum,
     sharesAccepted: info.sharesAccepted ?? 0,
     sharesRejected: info.sharesRejected ?? 0,
+    sharesSent: info.sharesSent,
     bestDiff: info.bestDiff ?? info.bestDifficulty ?? null,
     bestSessionDiff: info.bestSessionDiff ?? info.bestShare ?? null,
     uptimeSeconds: info.uptimeSeconds ?? 0,

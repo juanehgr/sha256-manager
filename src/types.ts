@@ -67,6 +67,7 @@ export type Device = {
   online: boolean;
   sharesAccepted: number;
   sharesRejected: number;
+  sharesSent?: number;
   bestDiff?: string | number | null;
   bestSessionDiff?: string | number | null;
   uptimeSeconds?: number;

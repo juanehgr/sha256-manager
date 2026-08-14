@@ -51,7 +51,7 @@ function parse(raw) {
   } else {
     doc = JSON.parse(text);
   }
-  if (doc?.kind !== KIND || !doc.data) throw new Error("No es una copia de SHA-256 Manager");
+  if (doc?.kind !== KIND || !doc.data) throw new Error("No es una copia de Miner Connection Manager");
   return doc;
 }
 

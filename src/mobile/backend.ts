@@ -3,8 +3,9 @@ import { applyPool, normalizeHost, probe, restart } from "./miners";
 import { Lan } from "../native/lan";
 import { algoFromCoin, mrrRequest } from "./mrr";
 import { backupStatus, exportDoc, importMerge, importReplace, restorePrev } from "./backup";
+import { pullLanBackup } from "../backupLan";
 
-const VERSION = "0.2.3";
+const VERSION = "0.2.6";
 const GH_REL = "https://api.github.com/repos/juanehgr/sha256-manager/releases/latest";
 
 function cmpVer(a: string, b: string) {
@@ -96,6 +97,27 @@ function withHistory(device: Record<string, unknown>) {
     .sort((a, b) => a.ts - b.ts)
     .map((s) => ({ ts: s.ts, hashrate: s.hashrate }));
   return { ...device, history };
+}
+
+function slimDevice(d: Record<string, unknown>) {
+  const copy = { ...d };
+  delete copy.history;
+  delete copy.coinStats;
+  return copy;
+}
+
+function persistKnown() {
+  db().known_devices = [...cache.values()].map((d) => slimDevice(d));
+  save();
+}
+
+function hydrateKnown() {
+  if (cache.size) return;
+  for (const d of db().known_devices || []) {
+    const mac = String(d.mac || "");
+    if (!mac) continue;
+    cache.set(mac, { ...d, online: false });
+  }
 }
 
 function recordSample(d: Record<string, unknown>) {
@@ -236,7 +258,10 @@ export const localApi = {
     save();
     return { ok: true };
   },
-  devices: async () => [...cache.values()].map(withHistory),
+  devices: async () => {
+    hydrateKnown();
+    return [...cache.values()].map(withHistory);
+  },
   scan: async () => {
     const { ip } = await Lan.getIpv4();
     const parts = ip.split(".").map(Number);
@@ -246,21 +271,28 @@ export const localApi = {
       const cand = `${prefix}.${i}`;
       if (cand !== ip) ips.push(cand);
     }
-    const devices = await mapLimit(ips, 32, async (host) => {
-      try {
-        return await probe(host);
-      } catch {
-        return null;
-      }
-    });
-    cache.clear();
-    for (const d of devices) {
+    const found = (
+      await mapLimit(ips, 32, async (host) => {
+        try {
+          return await probe(host);
+        } catch {
+          return null;
+        }
+      })
+    ).filter(Boolean) as Record<string, unknown>[];
+    const foundMacs = new Set(found.map((d) => String(d.mac)));
+    for (const d of found) {
       cache.set(String(d.mac), d);
       recordSample(d);
     }
-    return { devices: devices.map(withHistory), scanned: ips.length, subnets: [`${prefix}.0/24`] };
+    for (const [mac, prev] of cache) {
+      if (!foundMacs.has(mac)) cache.set(mac, { ...prev, online: false });
+    }
+    persistKnown();
+    return { devices: [...cache.values()].map(withHistory), scanned: ips.length, subnets: [`${prefix}.0/24`] };
   },
   refresh: async () => {
+    hydrateKnown();
     const ips = [...new Set([...cache.values()].map((d) => String(d.ip)).filter(Boolean))];
     await Promise.all(
       ips.map(async (ip) => {
@@ -275,6 +307,7 @@ export const localApi = {
         }
       })
     );
+    persistKnown();
     return [...cache.values()].map(withHistory);
   },
   identify: async () => {
@@ -515,4 +548,5 @@ export const localApi = {
     return { ok: true };
   },
   backupStatus: async () => backupStatus(),
+  pullLanBackup: async (host: string) => pullLanBackup(host),
 };

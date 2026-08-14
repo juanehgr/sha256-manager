@@ -24,7 +24,7 @@ function Shell() {
   const [wallets, setWallets] = useState<Wallet[]>([]);
   const [configs, setConfigs] = useState<Config[]>([]);
   const [msg, setMsg] = useState("");
-  const [version, setVersion] = useState("0.2.3");
+  const [version, setVersion] = useState("0.2.6");
   const [upd, setUpd] = useState<{
     available?: boolean;
     latest?: string;
@@ -54,13 +54,17 @@ function Shell() {
     if (!isNativeApp()) {
       fetch(apiUrl("/api/version"))
         .then((r) => r.json())
-        .then((v) => setVersion(v.version || "0.2.3"))
+        .then((v) => setVersion(v.version || "0.2.6"))
         .catch(() => undefined);
     }
     function pollUpdate() {
       api
         .updateCheck()
-        .then((u) => setUpd(u as typeof upd))
+        .then((u) => {
+          const info = u as typeof upd;
+          setUpd(info);
+          if (info?.current) setVersion(String(info.current));
+        })
         .catch((e) => setUpd({ error: String(e.message), current: version, status: 404 }));
     }
     pollUpdate();

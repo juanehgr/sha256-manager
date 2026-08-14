@@ -7,6 +7,7 @@ export default function Backup({ onChange, setMsg }: { onChange: () => void; set
   const { t } = useI18n();
   const [code, setCode] = useState("");
   const [incoming, setIncoming] = useState("");
+  const [lanHost, setLanHost] = useState("");
   const [fp, setFp] = useState("");
   const [hasBackup, setHasBackup] = useState(false);
   const [backupAt, setBackupAt] = useState("");
@@ -25,6 +26,19 @@ export default function Backup({ onChange, setMsg }: { onChange: () => void; set
   useEffect(() => {
     refreshStatus();
   }, []);
+
+  async function fetchLan() {
+    setBusy(true);
+    try {
+      const raw = await api.pullLanBackup(lanHost);
+      setIncoming(raw);
+      setMsg(t("backupLanOk"));
+    } catch (e) {
+      setMsg(String((e as Error).message));
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function exportNow() {
     setBusy(true);
@@ -87,11 +101,31 @@ export default function Backup({ onChange, setMsg }: { onChange: () => void; set
   }
 
   return (
-    <div>
-      <h2>{t("backup")}</h2>
+    <div className="stack">
+      <div>
+      <h2>{t("backupTitle")}</h2>
       <p className="lead">{t("backupLead")}</p>
+      </div>
 
-      <div className="card" style={{ marginBottom: 16 }}>
+      <div className="card">
+        <strong>{t("backupLan")}</strong>
+        <p className="muted">{t("backupLanHint")}</p>
+        <label className="field">
+          {t("backupLanHost")}
+          <input
+            value={lanHost}
+            onChange={(e) => setLanHost(e.target.value)}
+            placeholder={t("backupLanHost")}
+          />
+        </label>
+        <div className="row" style={{ marginTop: 12, marginBottom: 0 }}>
+        <button className="btn primary" type="button" disabled={busy} onClick={fetchLan}>
+          {t("backupLanFetch")}
+        </button>
+        </div>
+      </div>
+
+      <div className="card">
         <strong>{t("backupExport")}</strong>
         <p className="muted">{t("backupExportHint")}</p>
         <button className="btn primary" type="button" disabled={busy} onClick={exportNow}>
@@ -102,10 +136,10 @@ export default function Backup({ onChange, setMsg }: { onChange: () => void; set
             {t("backupFingerprint")}: <code>{fp}</code>
           </p>
         )}
-        {code && <textarea readOnly rows={5} value={code} style={{ width: "100%", marginTop: 10 }} />}
+        {code && <textarea readOnly rows={5} value={code} />}
       </div>
 
-      <div className="card" style={{ marginBottom: 16 }}>
+      <div className="card">
         <strong>{t("backupImport")}</strong>
         <p className="muted">{t("backupImportHint")}</p>
         <textarea
@@ -113,19 +147,18 @@ export default function Backup({ onChange, setMsg }: { onChange: () => void; set
           value={incoming}
           onChange={(e) => setIncoming(e.target.value)}
           placeholder={t("backupPaste")}
-          style={{ width: "100%" }}
         />
         <input
           type="file"
           accept="application/json,.json,.txt"
-          style={{ margin: "10px 0" }}
+          style={{ margin: "12px 0" }}
           onChange={(e) => {
             const f = e.target.files?.[0];
             if (!f) return;
             f.text().then(setIncoming).catch((err) => setMsg(String(err)));
           }}
         />
-        <div className="row">
+        <div className="row" style={{ marginBottom: 0 }}>
           <button className="btn" type="button" disabled={busy} onClick={() => setIncoming("")}>
             {t("backupNothing")}
           </button>

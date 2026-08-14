@@ -73,7 +73,7 @@ export default function Dashboard({
         return (await api.scan()) as { devices: Device[]; scanned: number; subnets: string[] };
       });
       setDevices(r.devices);
-      setMsg(t("foundN", { n: r.devices.length }));
+      setMsg(t("foundN", { n: r.devices.filter((d) => d.online).length }));
     } catch (e) {
       setMsg(String((e as Error).message));
     } finally {
@@ -132,7 +132,7 @@ export default function Dashboard({
   }
 
   return (
-    <div>
+    <div className="dash-main">
       <UpdateCard upd={upd} elState={elState} elPercent={elPercent} version={version} onBusy={setMsg} />
       <div className="row">
         <button className="btn primary" onClick={scan} disabled={scanning}>
@@ -158,6 +158,7 @@ export default function Dashboard({
         </button>
       </div>
 
+      <section className="dash-pools">
       <div className="section-head">
         <div>
           <h2>{t("poolChange")}</h2>
@@ -197,8 +198,10 @@ export default function Dashboard({
           );
         })}
       </div>
+      </section>
 
-      <h2 style={{ marginTop: 28 }}>{t("miners")}</h2>
+      <section className="dash-miners">
+      <h2>{t("miners")}</h2>
       <div className="grid miners">
         {devices.length === 0 && <div className="card muted">{t("noneFound")}</div>}
         {devices.map((d) => {
@@ -231,6 +234,22 @@ export default function Dashboard({
                   <div className="metrics">
                     <span>{formatHashrate(d.hashRate)}</span>
                     <span>{d.temp != null ? `${Number(d.temp).toFixed(0)} °C` : "—"}</span>
+                    <span>
+                      {t("vrTemp")}{" "}
+                      {d.vrTemp != null ? `${Number(d.vrTemp).toFixed(0)} °C` : "—"}
+                    </span>
+                    <span>
+                      {t("uptime")} {formatUptime(d.uptimeSeconds)}
+                    </span>
+                    <span>
+                      {t("sharesSent")} {Number(d.sharesSent ?? Number(d.sharesAccepted || 0) + Number(d.sharesRejected || 0))}
+                    </span>
+                    <span>
+                      {t("sharesValid")} {Number(d.sharesAccepted || 0)}
+                    </span>
+                    <span>
+                      {t("sharesInvalid")} {Number(d.sharesRejected || 0)}
+                    </span>
                     <span>
                       {t("session")} {formatDiff(d.bestSessionDiff)}
                     </span>
@@ -270,7 +289,6 @@ export default function Dashboard({
                       {d.frequency ? ` · ${d.frequency} MHz` : ""}
                       {d.coreVoltage ? ` · ${d.coreVoltage} mV` : ""}
                       {d.power != null ? ` · ${Number(d.power).toFixed(1)} W` : ""}
-                      {` · ${formatUptime(d.uptimeSeconds)}`}
                     </div>
                   </div>
                 </div>
@@ -324,6 +342,7 @@ export default function Dashboard({
         </>
       )}
       {devices.some((d) => d.coinStats) && <p className="muted">{t("estNote")}</p>}
+      </section>
     </div>
   );
 }

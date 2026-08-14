@@ -34,7 +34,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => res.json({ ok: true, version: VERSION }));
-app.get("/api/version", (_req, res) => res.json({ version: VERSION, name: "SHA-256 Manager" }));
+app.get("/api/version", (_req, res) => res.json({ version: VERSION, name: "Miner Connection Manager" }));
 
 app.get("/api/update", async (_req, res) => {
   try {
@@ -267,6 +267,37 @@ async function decorate(device) {
   }
 }
 
+function slimDevice(d) {
+  const copy = { ...d };
+  delete copy.history;
+  delete copy.coinStats;
+  return copy;
+}
+
+function persistKnown(d) {
+  if (!d?.mac) return;
+  db.prepare(
+    `INSERT INTO known_devices (mac, ip, payload, updated_at) VALUES (?, ?, ?, datetime('now'))
+     ON CONFLICT(mac) DO UPDATE SET ip=excluded.ip, payload=excluded.payload, updated_at=excluded.updated_at`
+  ).run(d.mac, d.ip || "", JSON.stringify(slimDevice(d)));
+}
+
+function hydrateKnown() {
+  if (cache.size) return;
+  const rows = db.prepare("SELECT payload FROM known_devices").all();
+  for (const r of rows) {
+    try {
+      const d = JSON.parse(r.payload);
+      if (!d?.mac) continue;
+      cache.set(d.mac, { ...d, online: false });
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
+hydrateKnown();
+
 function recordSample(d) {
   if (!d?.mac || !d.online) return;
   db.prepare("INSERT INTO hashrate_samples (mac, ts, hashrate) VALUES (?, ?, ?)").run(
@@ -278,24 +309,34 @@ function recordSample(d) {
 }
 
 app.get("/api/devices", async (_req, res) => {
+  hydrateKnown();
   res.json(await Promise.all([...cache.values()].map(decorate)));
 });
 
 app.post("/api/devices/scan", async (_req, res) => {
   try {
     const result = await scanNetwork();
-    cache.clear();
+    const found = new Set();
     for (const d of result.devices) {
       cache.set(d.mac, d);
       recordSample(d);
+      persistKnown(d);
+      found.add(d.mac);
     }
-    res.json({ ...result, devices: await Promise.all(result.devices.map(decorate)) });
+    for (const [mac, prev] of cache) {
+      if (found.has(mac)) continue;
+      const off = { ...prev, online: false };
+      cache.set(mac, off);
+      persistKnown(off);
+    }
+    res.json({ ...result, devices: await Promise.all([...cache.values()].map(decorate)) });
   } catch (e) {
     res.status(500).json({ error: String(e.message || e) });
   }
 });
 
 app.post("/api/devices/refresh", async (_req, res) => {
+  hydrateKnown();
   const ips = [...new Set([...cache.values()].map((d) => d.ip).filter(Boolean))];
   await Promise.all(
     ips.map(async (ip) => {
@@ -303,9 +344,14 @@ app.post("/api/devices/refresh", async (_req, res) => {
         const d = await probe(ip);
         cache.set(d.mac, d);
         recordSample(d);
+        persistKnown(d);
       } catch {
         for (const [mac, prev] of cache) {
-          if (prev.ip === ip) cache.set(mac, { ...prev, online: false });
+          if (prev.ip === ip) {
+            const off = { ...prev, online: false };
+            cache.set(mac, off);
+            persistKnown(off);
+          }
         }
       }
     })
@@ -692,7 +738,7 @@ function start() {
     };
     const onListen = () => {
       server.off("error", onError);
-      console.log(`SHA-256 Manager v${VERSION} en http://127.0.0.1:${PORT} (bind ${BIND})`);
+      console.log(`Miner Connection Manager v${VERSION} en http://127.0.0.1:${PORT} (bind ${BIND})`);
       resolve(server);
     };
     server.once("error", onError);

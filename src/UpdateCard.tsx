@@ -57,6 +57,8 @@ export default function UpdateCard({
     }
   }
 
+  if (!available) return null;
+
   return (
     <div className={`update-card ${available ? "hot" : ""}`}>
       <div>

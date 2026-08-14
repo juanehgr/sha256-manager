@@ -1,31 +1,33 @@
-# SHA-256 Manager
+# Miner Connection Manager
 
-**Gestor local de mineros SHA-256.** Descubre ASICs en tu LAN, guarda pools y wallets, y cambia de stratum con un clic. También aplica la misma configuración a alquileres de [Mining Rig Rentals](https://www.miningrigrentals.com/).
+Local manager for **SHA-256 ASICs**. Discover miners on your LAN, store pools and wallets, and switch stratum with one click. The same config can be applied to [Mining Rig Rentals](https://www.miningrigrentals.com/) rentals.
 
-Versión **0.2.3** · Electron + web en `http://127.0.0.1:3847` · Datos en SQLite local (no hay nube ni cuentas).
+**v0.2.6** · Electron / web at `http://127.0.0.1:3847` · Android APK · SQLite on the device (no cloud, no accounts).
 
-![Panel con mineros y cambio de pool](docs/screenshots/01-dashboard.png)
+[Español](README.es.md)
 
----
-
-## Qué resuelve
-
-En una flota pequeña (NerdQAxe, Open ASIC, Antminer, Whatsminer y otros SHA-256) cambiar de pool suele ser entrar uno a uno en la web del minero. Esta app:
-
-1. Encuentra los equipos en el `/24` (HTTP JSON y API cgminer/Whatsminer en el puerto **4028**).
-2. Reúne **pools**, **wallets** y **configuraciones** (pool + wallet + worker + contraseña).
-3. Aplica host, puerto, usuario y password a los mineros seleccionados o a todos los que estén en línea.
-4. Muestra hashrate, temperatura, pool activo, dificultad de red y alquileres MRR en el mismo panel.
-
-Todo corre en tu PC. Las API keys de MRR van en la base de datos de la app, no en variables de entorno del sistema.
+![Dashboard with miners and pool switch](docs/screenshots/01-dashboard.png)
 
 ---
 
-## Requisitos
+## What it does
 
-- Node.js **22+** (usa `node:sqlite`).
-- Red local con los mineros (mismo segmento o enrutado).
-- Opcional: cuenta MRR con API key + secret.
+On a small fleet (NerdQAxe, Open ASIC, Antminer, Whatsminer and other SHA-256 boxes), changing pool usually means opening each miner’s web UI. This app:
+
+1. Finds devices on the `/24` (HTTP JSON and cgminer/Whatsminer API on port **4028**).
+2. Stores **pools**, **wallets** and **configs** (pool + wallet + worker + password).
+3. Applies host, port, user and password to selected miners — or to every online miner.
+4. Shows hashrate, board/VR temps, shares, uptime, active pool, network stats and MRR rentals on one dashboard.
+
+Everything runs on your PC or phone. MRR API keys live in the local database, not in system env vars.
+
+---
+
+## Requirements
+
+- Node.js **22+** (`node:sqlite`).
+- LAN with the miners (same subnet or routed).
+- Optional: MRR account with API key + secret.
 
 ```bash
 git clone https://github.com/juanehgr/sha256-manager.git
@@ -35,159 +37,177 @@ npm run build
 npm run server
 ```
 
-Abre **http://127.0.0.1:3847**. Escritorio (desarrollo):
+Open **http://127.0.0.1:3847**. Desktop (dev):
 
 ```bash
 npm start
 ```
 
-### Ejecutable de Windows
+### Windows executable
 
 ```bash
 npm install
 npm run dist
 ```
 
-En `release/` quedan:
+In `release/`:
 
-- **`SHA-256-Manager-0.2.3-portable.exe`** — no instala nada; doble clic y abre la ventana.
-- **Instalador NSIS** — acceso directo en escritorio y menú inicio.
+- **`SHA-256-Manager-0.2.6-portable.exe`** — no install; double-click.
+- **NSIS installer** — desktop and Start Menu shortcuts (**Miner Connection Manager**).
 
-Los datos del `.exe` se guardan en `%APPDATA%\sha256-manager\data\`.
+Packaged data: `%APPDATA%\sha256-manager\data\`.
 
 ### Android (APK)
 
-El APK es **standalone**: escanea la Wi‑Fi del móvil, guarda pools/wallets en el teléfono y aplica stratum directo a los mineros. No hace falta el PC.
+The APK is **standalone**: it scans the phone’s Wi‑Fi, stores pools/wallets on the device, and talks to miners directly. No PC required.
 
 ```bash
 npm install
 npm run android:apk
 ```
 
-El archivo queda en `release/SHA-256-Manager-0.2.3.apk` (firmado).
+Output: `release/SHA-256-Manager-0.2.6.apk` (signed).
 
-Google **no lo va a “confiar”** porque no está en Play Store. En el móvil:
+Google will not “trust” a sideload. On the phone:
 
-1. Desinstala cualquier SHA-256 Manager anterior.
-2. Ajustes → Aplicaciones → Acceso especial → **Instalar apps desconocidas** → Files / Chrome / Drive → permitir.
-3. Abre el APK. Si sale **Play Protect**: Más detalles → **Instalar de todos modos**.
+1. Uninstall any previous build.
+2. Settings → Apps → Special access → **Install unknown apps** → Files / Chrome / Drive → allow.
+3. Open the APK. If **Play Protect** appears: More details → **Install anyway**.
 
-### Actualizaciones
+---
 
-El dashboard comprueba [GitHub Releases](https://github.com/juanehgr/sha256-manager/releases) al abrir y cada 10 minutos. Si hay una versión más nueva, aparece **Actualizar ahora**. El instalador **NSIS** también puede descargar e instalar; el portable no se auto-reemplaza bien.
+## Features
 
-En **web** (`npm run server` desde un clon git), el mismo aviso ofrece `git pull` + `npm install` + build y recarga.
+### Dashboard
 
-Publicar una versión (sube el número en `package.json` antes):
+![Dashboard](docs/screenshots/01-dashboard.png)
+
+- **Detect miners:** mDNS + HTTP JSON + TCP 4028 on the `/24`.
+- Detected miners are **saved**. Closing the app does not require a full scan next time; known IPs are refreshed.
+- Cards: active pool, hashrate, board temp, **VR temp**, **uptime**, **shares sent / valid / invalid**, diffs, firmware, chart.
+- Coin/network stats from the **pool** (host, port, name) — not from a `bc1` address (BTC and Fractal Bitcoin share that format).
+- Miner counts are an **estimate** (~200 TH/s equivalents).
+- Config cards: one click applies stratum to LAN (and MRR rentals if an account is active). **Restart after apply** sits next to the title.
+- On a **narrow screen**, miners come first; pool configs are a **horizontal slider**.
+- The update banner only appears when a **newer GitHub release** exists (or while a desktop download is in progress).
+- Language **ES / EN** in the top bar.
+
+### Pools
+
+![Pools](docs/screenshots/02-pools.png)
+
+- Manual add: name, host, port, coin, password (default `x`).
+- **Import from a pool website:** paste a URL (molepool, solopool, public-pool, …). The server walks docs, APIs and scripts for `host:port`.
+- Group by site, search, edit. Re-import recreates deleted rows; it does not duplicate the same `host:port`.
+
+### Wallets
+
+![Wallets](docs/screenshots/03-wallets.png)
+
+- Name, address, optional coin and notes.
+- Mining coin is defined by the pool, not assumed from `bc1`.
+
+### Configs
+
+![Configs](docs/screenshots/04-configs.png)
+
+Each row is a one-click recipe:
+
+| Field | Use |
+| --- | --- |
+| Pool | Stratum host and port |
+| Wallet | Payout address |
+| Worker | Optional suffix |
+| Password | Stratum, default `x` |
+| Fallback | Backup pool (firmware that supports it) |
+
+Stratum user is `address` or `address.worker`.
+
+### Schedules
+
+![Schedules](docs/screenshots/05-schedules.png)
+
+Switch config at a time of day, on weekdays, or at a one-off datetime (PC clock). All online miners or one MAC. Optional restart.
+
+### Mining Rig Rentals (MRR)
+
+![MRR](docs/screenshots/06-mrr.png)
+
+- Several users, each with **API key + secret** in SQLite.
+- Activate one account, list rentals (current pool, hashrate, end time).
+- Apply the same pool config as local ASICs (`PUT /rental/{id}/pool`).
+- Rentals also show on the dashboard.
+
+### Sync configurations
+
+![Sync](docs/screenshots/08-sync.png)
+
+Move pools, wallets, configs, schedules and MRR keys between devices:
+
+- Hash / JSON file (treat it like a password).
+- **Pull over local IP** from another PC/web instance listening on port **3847**, then merge or replace.
+- Previous snapshot can be restored after a replace.
+
+The Android app can pull from a PC. Two phones cannot pull from each other (the APK does not serve HTTP).
+
+### Donate
+
+![Donate](docs/screenshots/07-donate.png)
+
+On-chain BTC address and QR. Optional; no extra rights.
+
+---
+
+## Updates
+
+The UI checks [GitHub Releases](https://github.com/juanehgr/sha256-manager/releases) on open and every 10 minutes. If latest **>** installed, **Update now** appears.
+
+- **NSIS** can download and install (`electron-updater`).
+- **Portable** `.exe` does not replace itself cleanly — download the new file.
+- **Web** (`npm run server` from a git clone) can `git pull` + `npm install` + build.
+- **APK** opens the GitHub `.apk` asset when a newer tag exists.
+
+Publish (bump `package.json` first):
 
 ```bash
 npm run release
 ```
 
-Usa `gh` / `GH_TOKEN` con permiso `repo`. Crea el release con el `.exe` y `latest.yml` para electron-updater.
+Needs `gh` / `GH_TOKEN` with `repo`. Uploads the Windows build, `latest.yml`, and the APK.
 
-Los datos viven en `data/data.sqlite` si arrancas con `npm run server` (junto al proyecto). No se suben al repositorio.
-
----
-
-## Funcionalidades
-
-### 1. Panel — mineros LAN y cambio de pool
-
-![Panel](docs/screenshots/01-dashboard.png)
-
-- **Detectar mineros:** mDNS + barrido HTTP y TCP 4028.
-- **Tarjetas de equipo:** pool activo, hashrate, temperatura, shares, firmware, gráfica con ejes y valor actual.
-- **Moneda:** se infiere del **pool** (host, puerto y nombre), no de la dirección `bc1` (BTC y Fractal Bitcoin comparten formato).
-- **Red:** dificultad y hashrate de red (SHA-256 / minerstat / mempool). Los recuentos de mineros son una **estimación** (~equivalentes a 200 TH/s).
-- **Configuraciones:** rejilla de tarjetas (hasta 4 por fila). Un clic aplica stratum a LAN y, si hay MRR activo, a los alquileres.
-- **Reiniciar al aplicar:** interruptor junto al título de cambio de pool.
-- Idioma **ES / EN** en la barra superior. Los avisos se cierran solos o con ×.
-
-### 2. Pools — biblioteca e importación por URL
-
-![Pools](docs/screenshots/02-pools.png)
-
-- Alta manual: nombre, host, puerto, moneda, password (por defecto `x`).
-- **Importar desde una web de pool:** pega la URL (molepool, solopool, public-pool, etc.). El servidor recorre guía, APIs y scripts en busca de `host:puerto` stratum.
-- Agrupación por sitio, búsqueda y edición.
-- Reimportar **vuelve a crear** los que hayas borrado; no duplica el mismo `host:puerto`.
-
-### 3. Carteras
-
-![Carteras](docs/screenshots/03-wallets.png)
-
-- Nombre, dirección y moneda (opcional).
-- No se asume BTC solo por `bc1`. La moneda de minado la marca el pool.
-
-### 4. Configs — recetas de un clic
-
-![Configs](docs/screenshots/04-configs.png)
-
-Cada fila une:
-
-| Campo | Uso |
-| --- | --- |
-| Pool | Host y puerto stratum |
-| Wallet | Dirección de pago |
-| Worker | Sufijo (opcional) |
-| Contraseña | Stratum, por defecto `x` |
-| Fallback | Pool de reserva (firmware que lo soporte) |
-
-El usuario de stratum queda `dirección` o `dirección.worker`.
-
-### 5. Programación
-
-![Programación](docs/screenshots/05-schedules.png)
-
-Cambia de configuración a una hora, en días de la semana o en una fecha concreta (reloj del PC). Puede aplicarse a todos los mineros en línea o a uno por MAC, con reinicio opcional.
-
-### 6. Mining Rig Rentals (MRR)
-
-![MRR](docs/screenshots/06-mrr.png)
-
-- Varios usuarios, cada uno con su **API key y secret** en SQLite.
-- Activa una cuenta y lista alquileres (pool actual, hashrate, fin).
-- Aplica la misma config de pool que a los ASICs locales (`PUT /rental/{id}/pool`).
-- Los alquileres también aparecen en el **Panel**.
-
-### 7. Donar
-
-![Donar](docs/screenshots/07-donate.png)
-
-Dirección BTC on-chain y QR, sin intermediarios.
+Dev data: `data/data.sqlite` next to the project (`data/` is gitignored).
 
 ---
 
-## Cómo se habla con los mineros
+## How miners are talked to
 
-| Tipo | Cómo se detecta | Cambio de pool |
+| Kind | Discovery | Pool change |
 | --- | --- | --- |
-| Firmware HTTP JSON (p. ej. AxeOS) | `GET /api/system/info` | `PATCH /api/system` |
+| HTTP JSON firmware (e.g. AxeOS) | `GET /api/system/info` | `PATCH /api/system` |
 | cgminer / Antminer | TCP **4028** `summary` / `pools` | `addpool` + `switchpool` |
-| Whatsminer | TCP **4028** (`cmd` / `command`) | Misma API cgminer cuando el firmware lo permite |
+| Whatsminer | TCP **4028** (`cmd` / `command`) | Same cgminer API when firmware allows |
 
-Identidad por MAC cuando el equipo la expone; si no, un identificador derivado de la IP.
+Identity is MAC when the device exposes it; otherwise an id derived from the IP.
 
 ---
 
-## Privacidad y seguridad
+## Privacy
 
-- Escucha en **0.0.0.0:3847** para que el móvil en la misma Wi‑Fi pueda conectar. El escritorio sigue abriendo `http://127.0.0.1:3847`.
-- No hay cuentas remotas ni telemetría de esta app.
-- Keys MRR: tabla `mrr_users` en SQLite. No las subas a git (`data/` está en `.gitignore`).
-- Aplicar pool **escribe en el minero**. Revisa la config antes de pulsar.
+- Binds **0.0.0.0:3847** so a phone on the same Wi‑Fi can reach a PC instance. The desktop still opens `http://127.0.0.1:3847`.
+- No remote accounts, no telemetry from this app.
+- MRR keys: `mrr_users` in SQLite. Do not commit `data/`.
+- Applying a pool **writes to the miner**. Check the config first.
 
 ---
 
 ## Stack
 
-React + Vite (UI) · Express (`server/`) · SQLite (`node:sqlite`) · Electron opcional · HMAC-SHA1 para la API v2 de MRR.
+React + Vite · Express (`server/`) · SQLite (`node:sqlite`) · Electron · Capacitor (Android) · HMAC-SHA1 for MRR API v2.
 
 ---
 
-## Licencia y estado
+## License
 
-Proyecto en **v0.2.3**. Ver [LICENSE](LICENSE).
+**v0.2.6**. See [LICENSE](LICENSE).
 
-**No es Creative Commons.** CC (incluso BY-NC-ND) permite compartir copias; tú no quieres redistribución ni derivados ni uso comercial. Por eso es **todos los derechos reservados**: se puede descargar y usar en equipos propios; no se puede compartir, modificar ni monetizar sin permiso de **juanehgr**.
+Not Creative Commons. Personal use on your own machines is allowed. Redistribution, modification, and commercial use need written permission from **juanehgr**.

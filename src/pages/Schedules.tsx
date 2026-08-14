@@ -54,7 +54,7 @@ export default function Schedules({
     <div>
       <h2>{t("schedulesTitle")}</h2>
       <p className="lead">{t("schedulesLead")}</p>
-      <form className="row" onSubmit={onSubmit}>
+      <form className="form-grid" onSubmit={onSubmit}>
         <label>
           {t("name")}
           <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
@@ -116,6 +116,7 @@ export default function Schedules({
           {t("add")}
         </button>
       </form>
+      <div className="table-wrap">
       <table>
         <thead>
           <tr>
@@ -136,6 +137,7 @@ export default function Schedules({
               </td>
               <td>{s.enabled ? t("yes") : t("no")}</td>
               <td>
+                <div className="row-actions">
                 <button
                   className="btn"
                   onClick={() =>
@@ -146,15 +148,17 @@ export default function Schedules({
                   }
                 >
                   {s.enabled ? t("pause") : t("activate")}
-                </button>{" "}
+                </button>
                 <button className="btn danger" onClick={() => api.deleteSchedule(s.id).then(load).catch((e) => setMsg(e.message))}>
                   {t("del")}
                 </button>
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

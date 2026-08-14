@@ -88,6 +88,12 @@ function openDb() {
       ts INTEGER NOT NULL,
       hashrate REAL NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS known_devices (
+      mac TEXT PRIMARY KEY,
+      ip TEXT NOT NULL DEFAULT '',
+      payload TEXT NOT NULL,
+      updated_at TEXT DEFAULT (datetime('now'))
+    );
     CREATE TABLE IF NOT EXISTS schedules (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,

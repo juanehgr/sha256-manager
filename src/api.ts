@@ -1,5 +1,6 @@
 import { apiUrl, isNativeApp } from "./apiBase";
 import { localApi } from "./mobile/backend";
+import { pullLanBackup } from "./backupLan";
 
 async function req<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(apiUrl(path), {
@@ -72,6 +73,7 @@ const remote = {
     req("/api/backup/import", { method: "POST", body: JSON.stringify({ raw, mode }) }),
   restoreBackup: () => req("/api/backup/restore", { method: "POST" }),
   backupStatus: () => req("/api/backup"),
+  pullLanBackup: (host: string) => pullLanBackup(host),
 };
 
 type Api = typeof remote;

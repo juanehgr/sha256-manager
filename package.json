@@ -1,7 +1,7 @@
 {
   "name": "sha256-manager",
-  "version": "0.2.3",
-  "description": "SHA-256 Manager: LAN discovery, pools and one-click pool switch",
+  "version": "0.2.6",
+  "description": "Miner Connection Manager: LAN discovery, pools and one-click pool switch",
   "author": "juanehgr",
   "license": "SEE LICENSE IN LICENSE",
   "main": "electron/main.cjs",
@@ -21,7 +21,7 @@
   },
   "build": {
     "appId": "com.juanehgr.sha256manager",
-    "productName": "SHA-256 Manager",
+    "productName": "Miner Connection Manager",
     "copyright": "Copyright © juanehgr",
     "directories": {
       "output": "release"
@@ -49,7 +49,7 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "SHA-256 Manager"
+      "shortcutName": "Miner Connection Manager"
     },
     "portable": {
       "artifactName": "SHA-256-Manager-${version}-portable.exe"

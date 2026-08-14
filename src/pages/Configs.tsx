@@ -54,7 +54,7 @@ export default function Configs({
     <div>
       <h2>{t("configsTitle")}</h2>
       <p className="muted">{t("configsLead")}</p>
-      <form className="row" onSubmit={onSubmit}>
+      <form className="form-grid" onSubmit={onSubmit}>
         <label>
           {t("name")}
           <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
@@ -125,6 +125,7 @@ export default function Configs({
           {editId ? t("update") : t("addCfg")}
         </button>
       </form>
+      <div className="table-wrap">
       <table>
         <thead>
           <tr>
@@ -150,6 +151,7 @@ export default function Configs({
               <td>{c.password || "x"}</td>
               <td>{c.fallback_name || "—"}</td>
               <td>
+                <div className="row-actions">
                 <button
                   className="btn"
                   onClick={() => {
@@ -165,7 +167,7 @@ export default function Configs({
                   }}
                 >
                   {t("edit")}
-                </button>{" "}
+                </button>
                 <button
                   className="btn danger"
                   onClick={() =>
@@ -174,11 +176,13 @@ export default function Configs({
                 >
                   {t("del")}
                 </button>
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

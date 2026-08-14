@@ -183,7 +183,7 @@ export default function Mrr({
         ))}
       </div>
 
-      <form className="row" onSubmit={saveUser}>
+      <form className="form-grid" onSubmit={saveUser}>
         <label>
           {t("appNameField")}
           <input
@@ -224,7 +224,7 @@ export default function Mrr({
 
       {active && (
         <>
-          <div className="row">
+          <div className="toolbar">
             <span className="muted">
               {t("activeUser")}: {active.name}
               {account ? ` · ${account}` : ""}

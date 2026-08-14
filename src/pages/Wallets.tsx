@@ -47,7 +47,7 @@ export default function Wallets({
     <div>
       <h2>{t("wallets")}</h2>
       <p className="lead">{t("walletsLead")}</p>
-      <form className="row" onSubmit={onSubmit}>
+      <form className="form-grid" onSubmit={onSubmit}>
         <label>
           {t("name")}
           <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
@@ -62,7 +62,6 @@ export default function Wallets({
               setForm({ ...form, address, coin: form.coin || guessCoin(address) });
             }}
             required
-            style={{ minWidth: 320 }}
           />
         </label>
         <label>
@@ -77,6 +76,7 @@ export default function Wallets({
           {editId ? t("update") : t("addWallet")}
         </button>
       </form>
+      <div className="table-wrap">
       <table>
         <thead>
           <tr>
@@ -93,6 +93,7 @@ export default function Wallets({
               <td>{w.coin ? <span className="chip">{w.coin}</span> : "—"}</td>
               <td>{w.address}</td>
               <td>
+                <div className="row-actions">
                 <button
                   className="btn"
                   onClick={() => {
@@ -101,15 +102,17 @@ export default function Wallets({
                   }}
                 >
                   {t("edit")}
-                </button>{" "}
+                </button>
                 <button className="btn danger" onClick={() => api.deleteWallet(w.id).then(onChange).catch((e) => setMsg(e.message))}>
                   {t("del")}
                 </button>
+                </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }
